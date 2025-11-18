@@ -214,25 +214,32 @@ int main() {
         yRotation(PI) * D
     };
 
+    std::array faces = { face1, face2, face3, face4, face5, face6 };
+
+    std::array characters { '#', '$', '@', '&', '%', '='};
+
+    for (int i = 0; i < 6; ++i) {
+        std::cout << "\n\nPlease enter a character for face " + std::to_string(i) + " (or Q to use default): ";
+        std::string c;
+        std::cin >> c;
+
+        if (c == "Q")
+            break;
+
+        characters[i] = c[0];
+    }
+
 
     for (;;) {
-        face1 = { M * face1[0], M * face1[1], M * face1[2], M * face1[3] };
-        face2 = { M * face2[0], M * face2[1], M * face2[2], M * face2[3] };
-        face3 = { M * face3[0], M * face3[1], M * face3[2], M * face3[3] };
-        face4 = { M * face4[0], M * face4[1], M * face4[2], M * face4[3] };
-        face5 = { M * face5[0], M * face5[1], M * face5[2], M * face5[3] };
-        face6 = { M * face6[0], M * face6[1], M * face6[2], M * face6[3] };
-
         DISPLAY display = init_display();
-        paint_face(face1, '#', display);
-        paint_face(face2, '$', display);
-        paint_face(face3, '@', display);
-        paint_face(face4, '&', display);
-        paint_face(face5, '%', display);
-        paint_face(face6, '=', display);
-        // paint_face({ A + H, B + H, C + H, D + H }, '@', display);
+
+        for (int i = 0; i < 6; i++) {
+            faces[i] = { M * faces[i][0], M * faces[i][1], M * faces[i][2], M * faces[i][3] };
+            paint_face(faces[i], characters[i], display);
+        }
+
         show_display(display);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         clear();
     }
 }
