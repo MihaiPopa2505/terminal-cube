@@ -4,8 +4,6 @@
 #include <thread>
 #define DISPLAY std::array<std::array<std::pair<char, float>, DISPLAY_SIZE>, DISPLAY_SIZE>
 
-constexpr int N = 20;
-constexpr int SIDE_LENGTH = 50;
 constexpr int DISPLAY_SIZE = 50;
 constexpr float INF = 1e6f;
 constexpr float PI = 3.14159265358979323846f;
@@ -112,7 +110,7 @@ DISPLAY init_display() {
 }
 
 int mapToInt(float x) {
-    int ix = (int)std::round( (x + 1.0f) * 0.5f * (SIDE_LENGTH - 1));
+    int ix = (int)std::round( (x + 1.0f) * 0.5f * (DISPLAY_SIZE - 1));
     return std::clamp(ix, 0, DISPLAY_SIZE - 1);
 }
 
@@ -176,7 +174,6 @@ void show_display(const DISPLAY& display) {
 }
 
 int main() {
-    float angle = 0.;
     mat3 M = xRotation(PI / 1000.0f) * yRotation(-PI / 600.0f) * zRotation(PI / 1500.0f) * yRotation(PI / 300.0f);
 
 
