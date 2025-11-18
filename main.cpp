@@ -20,6 +20,10 @@ struct vec3 {
     }
 };
 
+vec3 operator*(float scalar, const vec3& v) {
+    return v * scalar;
+}
+
 struct mat3 {
     std::array<std::array<float, 3>, 3> mat;
 
@@ -41,6 +45,36 @@ struct mat3 {
         return { ans };
     }
 };
+
+mat3 xRotation(float angle) {
+    const std::array mat {
+        std::array{ 1.0f,            0.0f,             0.0f },
+        std::array{ 0.0f, std::cos(angle), -std::sin(angle) },
+        std::array{ 0.0f, std::sin(angle),  std::cos(angle) }
+    };
+
+    return mat3 { mat };
+}
+
+mat3 yRotation(float angle) {
+    const std::array mat {
+        std::array{  std::cos(angle), 0.0f, std::sin(angle) },
+        std::array{  0.0f,            1.0f,           0.0f  },
+        std::array{ -std::sin(angle), 0.0f, std::cos(angle) }
+    };
+
+    return mat3 { mat };
+}
+
+mat3 zRotation(float angle) {
+    const std::array mat {
+        std::array{ std::cos(angle), -std::sin(angle), 0.0f },
+        std::array{ std::sin(angle),  std::cos(angle), 0.0f },
+        std::array{ 0.0f,             0.0f,            1.0f }
+    };
+
+    return mat3 { mat };
+}
 
 int main() {
     return 0;
