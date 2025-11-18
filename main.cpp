@@ -216,14 +216,14 @@ int main() {
 
     std::array faces = { face1, face2, face3, face4, face5, face6 };
 
-    std::array characters { '#', '$', '@', '&', '%', '='};
+    std::array characters { '.', ',', '\"', '`', '\'', '-'};
 
     for (int i = 0; i < 6; ++i) {
         std::cout << "\n\nPlease enter a character for face " + std::to_string(i) + " (or Q to use default): ";
         std::string c;
         std::cin >> c;
 
-        if (c == "Q")
+        if (c == "Q" || c == "q")
             break;
 
         characters[i] = c[0];
