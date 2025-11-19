@@ -1,6 +1,7 @@
 #include <iostream>
 #include <span>
 #include <array>
+#include <functional>
 #include <thread>
 #define DISPLAY std::array<std::array<std::pair<char, float>, DISPLAY_SIZE>, DISPLAY_SIZE>
 
@@ -123,20 +124,27 @@ auto line_equation(int x1, int y1, int x2, int y2) {
     };
 }
 
-void paint_face(const std::array<vec3, 4>& face, char c, DISPLAY& display) {
+void paint_face(std::span<vec3> face, char c, DISPLAY& display) {
 
-    const auto equations = std::array {
-        line_equation(mapToInt(face[0].x), mapToInt(face[0].y), mapToInt(face[1].x), mapToInt(face[1].y)),
-        line_equation(mapToInt(face[1].x), mapToInt(face[1].y), mapToInt(face[2].x), mapToInt(face[2].y)),
-        line_equation(mapToInt(face[2].x), mapToInt(face[2].y), mapToInt(face[3].x), mapToInt(face[3].y)),
-        line_equation(mapToInt(face[3].x), mapToInt(face[3].y), mapToInt(face[0].x), mapToInt(face[0].y))
-    };
+    std::vector<std::function<int(int, int)>> equations {};
+    equations.reserve(face.size());
+
+    for (auto i = face.begin(); i < face.end(); ++i) {
+        vec3 current = *i;
+        vec3 next {};
+        if (i + 1 == face.end())
+            next = *face.begin();
+        else next = *(i + 1);
+        equations.emplace_back(line_equation(mapToInt(current.x), mapToInt(current.y),
+            mapToInt(next.x), mapToInt(next.y)));
+    }
+
 
     float height = 0;
     for (const auto& point: face)
         height += point.z;
 
-    height /= 4;
+    height /= 1.0f * face.size();
 
     for (int i = 0; i < DISPLAY_SIZE; i++) {
         for (int j = 0; j < DISPLAY_SIZE; j++) {
@@ -173,8 +181,8 @@ void show_display(const DISPLAY& display) {
     std::cout << s;
 }
 
-int main() {
-    mat3 M = xRotation(PI / 1000.0f) * yRotation(-PI / 600.0f) * zRotation(PI / 1500.0f) * yRotation(PI / 300.0f);
+int cube() {
+    const mat3 M = xRotation(PI / 1000.0f) * yRotation(-PI / 600.0f) * zRotation(PI / 1500.0f) * yRotation(PI / 300.0f);
 
 
     vec3 A = vec3 { 1, -1, 1 } * 0.5f;
@@ -229,17 +237,109 @@ int main() {
         characters[i] = c[0];
     }
 
-
     for (;;) {
         DISPLAY display = init_display();
 
-        for (int i = 0; i < 6; i++) {
-            faces[i] = { M * faces[i][0], M * faces[i][1], M * faces[i][2], M * faces[i][3] };
-            paint_face(faces[i], characters[i], display);
+        int i = 0;
+        for (auto& face : faces) {
+            for (auto& point: face)
+                point = M * point;
+            paint_face(face, characters[i++], display);
         }
 
         show_display(display);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         clear();
+    }
+}
+
+void dorito() {
+    const mat3 M = xRotation(PI / 1000.0f) * yRotation(-PI / 600.0f) * zRotation(PI / 1500.0f);
+    const mat3 Rotate120 = zRotation(2.0f * PI / 3.0f);
+
+    vec3 A = vec3 { 0, 1, 1 } * 0.5f;
+    vec3 B = Rotate120 * A;
+    vec3 C = Rotate120 * B;
+
+    std::cout << "B coordinates " << B.x << " " << B.y << std::endl;
+    std::cout << "C coordinates " << C.x << " " << C.y << std::endl;
+
+    std::vector face1 { A, B, C };
+
+    std::array faces = { face1 };
+    std::array characters { '.' };
+
+    for (;;) {
+        DISPLAY display = init_display();
+
+        int i = 0;
+        for (auto& face : faces) {
+            for (auto& point: face)
+                point = M * point;
+            paint_face(face, characters[i++], display);
+        }
+
+        show_display(display);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        clear();
+    }
+}
+
+void pyramid() {
+    const mat3 M = xRotation(PI / 731.0f) * yRotation(-PI / 579.0f) * zRotation(PI / 913.0f);
+    const mat3 Rotate120 = zRotation(2.0f * PI / 3.0f);
+    const float face_angle = acos(1/3.0f);
+
+    vec3 A = vec3 { 0, 1, 0 } * 0.7f;
+    vec3 B = Rotate120 * A;
+    vec3 C = Rotate120 * B;
+
+    vec3 MID = (B + C) * .5f;
+    vec3 D = xRotation(face_angle) * (A - MID) + MID;
+
+    vec3 G = (A + B + C + D) * .25f;
+    A = A - G;
+    B = B - G;
+    C = C - G;
+    D = D - G;
+
+    std::cout << "B coordinates " << B.x << " " << B.y << std::endl;
+    std::cout << "C coordinates " << C.x << " " << C.y << std::endl;
+
+    std::vector face1 { A, B, C };
+    std::vector face2 { A, B, D };
+    std::vector face3 { A, D, C };
+    std::vector face4 { B, D, C };
+
+    std::array faces = { face1, face2, face3, face4  };
+    std::array characters { '.', '\"', '`', '\''};
+
+    for (;;) {
+        DISPLAY display = init_display();
+
+        int i = 0;
+        for (auto& face : faces) {
+            for (auto& point: face)
+                point = M * point;
+            paint_face(face, characters[i++], display);
+        }
+
+        show_display(display);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        clear();
+    }
+}
+
+int main() {
+    std::cout << "1 for cube, 2 for tetrahedron, 3 for dorito: ";
+    int x = 0;
+    std::cin >> x;
+
+    if (x == 1) {
+        cube();
+    } else if (x == 2) {
+        pyramid();
+    } else if (x == 3) {
+        dorito();
     }
 }
