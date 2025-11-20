@@ -285,7 +285,7 @@ void dorito() {
     }
 }
 
-void pyramid() {
+void tetrahedron() {
     const mat3 M = xRotation(PI / 731.0f) * yRotation(-PI / 579.0f) * zRotation(PI / 913.0f);
     const mat3 Rotate120 = zRotation(2.0f * PI / 3.0f);
     const float face_angle = acos(1/3.0f);
@@ -330,16 +330,72 @@ void pyramid() {
     }
 }
 
+void pyramid() {
+    const mat3 M = xRotation(PI / 1000.0f) * yRotation(-PI / 600.0f) * zRotation(PI / 1500.0f) * yRotation(PI / 300.0f);
+
+
+    vec3 A = vec3 { 1, -1, 0 } * 0.5f;
+    vec3 B = vec3 { 1, 1, 0 } * 0.5f;
+    vec3 C = vec3 { -1, 1, 0 } * 0.5f;
+    vec3 D = vec3 { -1, -1, 0 } * 0.5f;
+    vec3 E = vec3 { 0, 0, 2 } * 0.5f;
+
+    vec3 G = (A + B + C + D + E) * 0.2f;
+    A = A - G;
+    B = B - G;
+    C = C - G;
+    D = D - G;
+    E = E - G;
+
+    std::vector face1 { A, B, C, D };
+    std::vector face2 { A, B, E };
+    std::vector face3 { B, C, E };
+    std::vector face4 { C, D, E };
+    std::vector face5 { D, A, E };
+
+    std::array faces = { face1, face2, face3, face4, face5 };
+
+    std::array characters { '.', ',', '\"', '`', '\''};
+
+    for (int i = 0; i < 5; ++i) {
+        std::cout << "\n\nPlease enter a character for face " + std::to_string(i) + " (or Q to use default): ";
+        std::string c;
+        std::cin >> c;
+
+        if (c == "Q" || c == "q")
+            break;
+
+        characters[i] = c[0];
+    }
+
+    for (;;) {
+        DISPLAY display = init_display();
+
+        int i = 0;
+        for (auto& face : faces) {
+            for (auto& point: face)
+                point = M * point;
+            paint_face(face, characters[i++], display);
+        }
+
+        show_display(display);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        clear();
+    }
+}
+
 int main() {
-    std::cout << "1 for cube, 2 for tetrahedron, 3 for dorito: ";
+    std::cout << "1 for cube, 2 for tetrahedron, 3 for dorito, 4 for pyramid: ";
     int x = 0;
     std::cin >> x;
 
     if (x == 1) {
         cube();
     } else if (x == 2) {
-        pyramid();
+        tetrahedron();
     } else if (x == 3) {
         dorito();
+    } else if (x == 4) {
+        pyramid();
     }
 }
